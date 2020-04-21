@@ -1,0 +1,5 @@
+beautifulsoup4==4.9.0
+docopt==0.6.2
+Markdown==3.2.1
+pdfkit==0.6.1
+Pygments==2.6.1
