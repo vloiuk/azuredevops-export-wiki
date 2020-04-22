@@ -6,10 +6,10 @@ Usage:
 
 Options:
     -h --help               # Show this screen
-    --to <str>              # Target format [default=pdf]
+    --to <str>              # Target format: md, html, pdf [default=pdf]
     --img-root <str>        # Path to images folder, if not passed CWD will be in used
-    --css-file <FILE>       # Path to exyternal CSS file
-    -o --out <FILE>         # For "md" and "html", frite to file
+    --css-file <FILE>       # Path to CSS file
+    -o --out <FILE>         # For "md" and "html", path to file
 """
 
 import base64

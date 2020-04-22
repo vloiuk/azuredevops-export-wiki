@@ -1,9 +1,9 @@
 # Azure DevOps WIKI export script
 
-Export Azure DevOps WIKI into:
+Export Azure DevOps WIKI to:
 
+* Markdown
 * HTML
-* Mardown
 * PDF
 
 Supports:
@@ -12,7 +12,7 @@ Supports:
 
 ## Get Started
 
-Init virtual envuronment: `python3 -m venv .venv`
+Init virtual environment: `python3 -m venv .venv`
 
 Activate it: `. .venv/bin/activate`
 
@@ -23,7 +23,3 @@ Install requirements: `pip install -r requirements.txt`
 Make executable: `chmod +x azuredevops-export-wiki.py`
 
 See usage and help info `./azuredevops-export-wiki.py -h`
-
-## Usage
-
-
