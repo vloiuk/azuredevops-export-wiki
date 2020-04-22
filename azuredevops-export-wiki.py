@@ -34,11 +34,11 @@ def get_md_for_order_file_record(_path):
         with open(_file_path, "r") as _file:
             _result += _file.read().strip()
     if path.exists(_path):
-        _result += generate_for_path(_path)
+        _result += get_md_for_wiki_folder(_path)
     return _result
 
 
-def generate_for_path(_path):
+def get_md_for_wiki_folder(_path):
     _order_file_path = path.join(_path, ".order")
     if not path.exists(_order_file_path):
         return ""
@@ -50,7 +50,7 @@ def generate_for_path(_path):
             _order_file_records.append(_line.strip())
             _line = _order_file.readline()
 
-    result = ""
+    result = "\n"
 
     for _record in _order_file_records:
         result += get_md_for_order_file_record(path.join(_path, _record))
@@ -67,6 +67,15 @@ def load_css(_file_path):
 
 
 def handle_html_soup(_soup):
+    # anchors
+    for tag in _soup.find_all("a"):
+        try:
+            tag["target"] = "_blank"
+            tag["rel"] = "noreferrer noopener"
+        except:
+            tag.append("**")
+            tag["class"] = "error"
+
     # code blocks
     for tag in _soup.find_all("code"):
         if not "\n" in tag.string:
@@ -92,7 +101,7 @@ def handle_html_soup(_soup):
 
     # images
     for tag in _soup.find_all("img"):
-        _src = ""
+        _src = None
         try:
             _src = tag["src"]
         except KeyError:
@@ -106,6 +115,7 @@ def handle_html_soup(_soup):
         if path.exists(_src):
             _data_src = base64.b64encode(open(_src, "rb").read()).decode()
             tag["src"] = "data:image/png;base64,{0}".format(_data_src)
+            tag.parent["class"]="img-parent"
         else:
             _img_err = _soup.new_tag("div")
             _img_err["class"] = "error"
@@ -135,7 +145,7 @@ _base_html = "<!DOCTYPE html>" \
 
 def main():
     try:
-        _md = generate_for_path(_doc_root)
+        _md = get_md_for_order_file_record(_doc_root)
         # TBD: fix image urls, this is done for HTML and PDF, but not for MD format
         if _to == "md":
             if _out:
