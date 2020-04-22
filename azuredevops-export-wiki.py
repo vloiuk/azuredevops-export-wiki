@@ -8,6 +8,7 @@ Options:
     -h --help               # Show this screen
     --to <str>              # Target format: md, html, pdf [default=pdf]
     --img-root <str>        # Path to images folder, if not passed CWD will be in used
+    --no-code-styles        # Do not inject default code CSS styles
     --css-file <FILE>       # Path to CSS file
     -o --out <FILE>         # For "md" and "html", path to file
 """
@@ -123,10 +124,11 @@ def handle_html_soup(_soup):
             tag.replace_with(_img_err)
 
     # collect css
-    _css = _code_formatter.get_style_defs('.highlight')
-    _style = _soup.new_tag("style", {type: "text/css"})
-    _style.string = _css
-    _soup.head.append(_style)
+    if not _no_code_styles:
+        _css = _code_formatter.get_style_defs('.highlight')
+        _style = _soup.new_tag("style", {type: "text/css"})
+        _style.string = _css
+        _soup.head.append(_style)
 
 
 _base_html = "<!DOCTYPE html>" \
@@ -190,6 +192,7 @@ if __name__ == "__main__":
     _code_formatter = HtmlFormatter()
     _css_file_path = None
     _out = None
+    _no_code_styles = None
 
     _args = docopt(__doc__)
     if _args["WIKI-ROOT"]:
@@ -202,5 +205,7 @@ if __name__ == "__main__":
         _img_root = _args["--img-root"]
     if _args["--out"]:
         _out = _args["--out"]
+    if _args["--no-code-styles"]:
+        _no_code_styles = _args["--no-code-styles"]
 
     main()
