@@ -10,7 +10,10 @@ Options:
     --img-root <str>        # Path to images folder, if not passed CWD will be in used
     --no-code-styles        # Do not inject default code CSS styles
     --css-file <FILE>       # Path to CSS file
-    -o --out <FILE>         # For "md" and "html", path to file
+    --toc                   # Add "table of content" to the beginning of the file
+    --adjust-heading        # When export a part of WIKI, set H1 as initial heading
+    --title <str>           # Add H1 title to the beginning of the file
+    -o --out <FILE>         # For "md" and "html", path to file    
 """
 
 import base64
@@ -21,9 +24,10 @@ import re
 from bs4 import BeautifulSoup
 import pdfkit
 from markdown import markdown
-from os import path
+from os import path, getcwd
 from docopt import docopt
 import sys
+#from lxml import etree
 if sys.version_info[0] < 3:
     raise Exception("Must be using Python 3")
 
@@ -116,7 +120,7 @@ def handle_html_soup(_soup):
         if path.exists(_src):
             _data_src = base64.b64encode(open(_src, "rb").read()).decode()
             tag["src"] = "data:image/png;base64,{0}".format(_data_src)
-            tag.parent["class"]="img-parent"
+            tag.parent["class"] = "img-parent"
         else:
             _img_err = _soup.new_tag("div")
             _img_err["class"] = "error"
@@ -141,13 +145,31 @@ _base_html = "<!DOCTYPE html>" \
     "</head>" \
     "<body>" \
     "{2}" \
+    "{3}" \
     "</body>" \
     "</html>"
 
 
 def main():
     try:
-        _md = get_md_for_order_file_record(_doc_root)
+        _md = ""
+        if _toc:
+            _md += "[TOC]\n\n"
+        _md += get_md_for_order_file_record(_doc_root)
+
+        if _adjust_heading:
+            _str_matches = re.findall(r"^#+", _md, flags=re.M)
+            if _str_matches.__len__() > 0:
+                _str_matches = list(set(_str_matches))
+                _str_matches = sorted(_str_matches)
+                if _str_matches[0] != "#":
+                    _h_index = 0
+                    for _match_str in _str_matches:
+                        _h_index = _h_index + 1
+                        _new_h = "".join(['#'] * _h_index)
+                        _re = re.compile("{0}".format(_match_str), flags=re.M)
+                        _md = _re.sub(_new_h, _md, 0)
+
         # TBD: fix image urls, this is done for HTML and PDF, but not for MD format
         if _to == "md":
             if _out:
@@ -158,9 +180,9 @@ def main():
             exit(0)
 
         #_html = markdown(_md, extensions=["tables", "codehilite"])
-        _html = markdown(_md, extensions=["tables"])
+        _html = markdown(_md, extensions=["tables", "toc"])
         _css = load_css(_css_file_path)
-        _html = _base_html.format("WIKI", _css, _html)
+        _html = _base_html.format("WIKI", _css, _html_title, _html)
         _soup = BeautifulSoup(_html, features="html.parser")
         handle_html_soup(_soup)
         _prod_html = _soup.prettify()
@@ -185,7 +207,8 @@ def main():
 
 
 if __name__ == "__main__":
-    _cwd = path.dirname(__file__)
+    #_script_path = path.dirname(path.realpath(__file__))
+    _cwd = getcwd()
     _doc_root = _cwd
     _img_root = _doc_root
     _to = "pdf"
@@ -193,6 +216,10 @@ if __name__ == "__main__":
     _css_file_path = None
     _out = None
     _no_code_styles = None
+    _toc = None
+    _adjust_heading = None
+    _title = None
+    _html_title = ""
 
     _args = docopt(__doc__)
     if _args["WIKI-ROOT"]:
@@ -207,5 +234,12 @@ if __name__ == "__main__":
         _out = _args["--out"]
     if _args["--no-code-styles"]:
         _no_code_styles = _args["--no-code-styles"]
+    if _args["--toc"]:
+        _toc = _args["--toc"]
+    if _args["--adjust-heading"]:
+        _adjust_heading = _args["--adjust-heading"]
+    if _args["--title"]:
+        _title = _args["--title"]
+        _html_title = "<h1>{0}</h1>".format(_title)
 
     main()

@@ -38,9 +38,7 @@ Optional, but recommended, **pip** update: `python -m pip install -U pip` or `pi
 
 Install requirements: `pip install -r requirements.txt`
 
-#### Windows specific requirements
-
-Grab [wkhtmltopdf](https://wkhtmltopdf.org/downloads.html) and install it.
+Grab [wkhtmltopdf](https://github.com/wkhtmltopdf/wkhtmltopdf/releases) and install it.
 
 ### Run script
 
@@ -66,14 +64,19 @@ Options:
     --img-root <str>        # Path to images folder, if not passed CWD will be in used
     --no-code-styles        # Do not inject default code CSS styles
     --css-file <FILE>       # Path to CSS file
-    -o --out <FILE>         # For "md" and "html", path to file
+    --toc                   # Add "table of content" to the beginning of the file
+    --adjust-heading        # When export a part of WIKI, set H1 as initial heading
+    --title <str>           # Add H1 title to the beginning of the file
+    -o --out <FILE>         # For "md" and "html", path to file 
 ```
 
 Where `WIKI-ROOT` is a path to WIKI root folder or any WIKI child folder you want to use as an entry point.
 
 ## Layout customization
 
-All images are wrapped with with class `img-parent`, it can be used for image positioning, for example.
+All images are wrapped with class `img-parent`, it can be used for image positioning, for example.
+
+"Table of content" is wrapped with class `toc`
 
 Custom theme for code block can be included into css file (see: `--css-file` option). There are some popular options [here](http://jwarby.github.io/jekyll-pygments-themes/languages/javascript.html). If you do so, use `--no-code-styles` option to avoid "double theme" issue.
 
@@ -83,5 +86,4 @@ Custom theme for code block can be included into css file (see: `--css-file` opt
 * add support for `.env` file via `--env-file` option
 * add [Wheels](https://pythonwheels.com) package setup
 * add support for a sequence of CSS files in `--css-file` option
-* add support for DevOps WIKI "table of content"
 * add support for [mermaid](https://mermaid-js.github.io/mermaid/) diagrams
