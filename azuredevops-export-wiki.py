@@ -27,7 +27,8 @@ from markdown import markdown
 from os import path, getcwd
 from docopt import docopt
 import sys
-#from lxml import etree
+
+
 if sys.version_info[0] < 3:
     raise Exception("Must be using Python 3")
 
@@ -83,7 +84,7 @@ def handle_html_soup(_soup):
 
     # code blocks
     for tag in _soup.find_all("code"):
-        if not "\n" in tag.string:
+        if "\n" not in tag.string:
             continue
         _code_content = tag.string
         _lexer = None
@@ -115,7 +116,7 @@ def handle_html_soup(_soup):
             continue
         if _src.startswith("http"):
             continue
-        _src = re.sub(r"\.\.\/?", "", _src)
+        _src = re.sub(r"\.\./?", "", _src)
         _src = path.join(_img_root, _src)
         if path.exists(_src):
             _data_src = base64.b64encode(open(_src, "rb").read()).decode()
@@ -136,18 +137,18 @@ def handle_html_soup(_soup):
 
 
 _base_html = "<!DOCTYPE html>" \
-    "<html lang='en'>" \
-    "<head>" \
-    "    <meta charset='UTF-8'>" \
-    "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>" \
-    "    <title>{0}</title>" \
-    "    <style type='text/css'>{1}</style>" \
-    "</head>" \
-    "<body>" \
-    "{2}" \
-    "{3}" \
-    "</body>" \
-    "</html>"
+             "<html lang='en'>" \
+             "<head>" \
+             "    <meta charset='UTF-8'>" \
+             "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>" \
+             "    <title>{0}</title>" \
+             "    <style type='text/css'>{1}</style>" \
+             "</head>" \
+             "<body>" \
+             "{2}" \
+             "{3}" \
+             "</body>" \
+             "</html>"
 
 
 def main():
@@ -167,7 +168,7 @@ def main():
                     for _match_str in _str_matches:
                         _h_index = _h_index + 1
                         _new_h = "".join(['#'] * _h_index)
-                        _re = re.compile("{0}".format(_match_str), flags=re.M)
+                        _re = re.compile("^{0}".format(_match_str), flags=re.M)
                         _md = _re.sub(_new_h, _md, 0)
 
         # TBD: fix image urls, this is done for HTML and PDF, but not for MD format
@@ -179,7 +180,7 @@ def main():
                 print(_md)
             exit(0)
 
-        #_html = markdown(_md, extensions=["tables", "codehilite"])
+        # _html = markdown(_md, extensions=["tables", "codehilite"])
         _html = markdown(_md, extensions=["tables", "toc"])
         _css = load_css(_css_file_path)
         _html = _base_html.format("WIKI", _css, _html_title, _html)
@@ -207,7 +208,7 @@ def main():
 
 
 if __name__ == "__main__":
-    #_script_path = path.dirname(path.realpath(__file__))
+    # _script_path = path.dirname(path.realpath(__file__))
     _cwd = getcwd()
     _doc_root = _cwd
     _img_root = _doc_root
