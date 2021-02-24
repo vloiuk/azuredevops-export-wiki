@@ -4,6 +4,9 @@
 Usage:
     azuredevops-export-wiki.py [options] WIKI-ROOT
 
+FYI:
+    - make sure you have installed wkhtmltopdf with patched qt Qt (https://wkhtmltopdf.org/downloads.html)
+
 Options:
     -h --help               # Show this screen
     --to <str>              # Target format: md, html, pdf [default=pdf]
@@ -13,6 +16,7 @@ Options:
     --toc                   # Add "table of content" to the beginning of the file
     --adjust-heading        # When export a part of WIKI, set H1 as initial heading
     --title <str>           # Add H1 title to the beginning of the file
+    --quiet                 # Reduce log level
     -o --out <FILE>         # For "md" and "html", path to file    
 """
 
@@ -33,13 +37,14 @@ if sys.version_info[0] < 3:
     raise Exception("Must be using Python 3")
 
 
-def get_md_for_order_file_record(_path):
+def get_md_for_order_file_record(_path: str):
     _result = "\n"
-    _file_path = "{0}.md".format(_path)
+    _single_file = _path.endswith(".md") or _path.endswith(".MD")
+    _file_path = _path if _single_file else "{0}.md".format(_path)
     if path.exists(_file_path):
         with open(_file_path, "r") as _file:
             _result += _file.read().strip()
-    if path.exists(_path):
+    if not _single_file and path.exists(_path):
         _result += get_md_for_wiki_folder(_path)
     return _result
 
@@ -198,9 +203,16 @@ def main():
         _pdf_path = path.join(_cwd, "output.pdf")
         if _out:
             _pdf_path = _out
-        pdfkit.from_string(_prod_html, _pdf_path)
 
-        print("\nFile path: {0}".format(_pdf_path))
+        # See: https://wkhtmltopdf.org/usage/wkhtmltopdf.txt
+        pdfkit_options = {}
+        if _quiet:
+            pdfkit_options["quiet"] = None
+
+        pdfkit.from_string(_prod_html, _pdf_path, options=pdfkit_options)
+
+        if not _quiet:
+            print("\nFile path: {0}".format(_pdf_path))
 
     except Exception as ex:
         print(ex)
@@ -221,6 +233,7 @@ if __name__ == "__main__":
     _adjust_heading = None
     _title = None
     _html_title = ""
+    _quiet = False
 
     _args = docopt(__doc__)
     if _args["WIKI-ROOT"]:
@@ -242,5 +255,7 @@ if __name__ == "__main__":
     if _args["--title"]:
         _title = _args["--title"]
         _html_title = "<h1>{0}</h1>".format(_title)
+    if _args["--quiet"]:
+        _quiet = True
 
     main()
