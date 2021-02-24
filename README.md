@@ -38,7 +38,7 @@ Optional, but recommended, **pip** update: `python -m pip install -U pip` or `pi
 
 Install requirements: `pip install -r requirements.txt`
 
-Grab [wkhtmltopdf](https://github.com/wkhtmltopdf/wkhtmltopdf/releases) and install it.
+Grab [wkhtmltopdf with patched qt Qt](https://wkhtmltopdf.org/downloads.html) and install it.
 
 ### Run script
 
